@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Разрывающаяся картинка</title>
+  <title>Разрыв фото</title>
   <style>
     * {
       margin: 0;
@@ -12,14 +12,9 @@
     }
 
     body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: #f0f0f0;
+      background: transparent; /* 🔹 Прозрачный фон */
     }
 
-    /* Уменьшенный размер: в 2 раза меньше (было 600x400 → стало 300x200) */
     .tear-container {
       position: relative;
       width: 300px;
@@ -28,6 +23,7 @@
       cursor: pointer;
       border-radius: 8px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      background: transparent;
     }
 
     /* Внешняя картинка (разрывается) */
@@ -39,10 +35,10 @@
       height: 100%;
       background-size: cover;
       background-position: center;
-      z-index: 2; /* Над внутренней, пока не активно */
+      z-index: 2;
     }
 
-    /* Левая половина */
+    /* Левая и правая половины */
     .tear-image::before,
     .tear-image::after {
       content: '';
@@ -53,7 +49,6 @@
       background: inherit;
       background-size: 200% 100%;
       transition: transform 0.7s cubic-bezier(0.2, 0.6, 0.2, 1);
-      transform-origin: center;
     }
 
     .tear-image::before {
@@ -70,7 +65,7 @@
       clip-path: polygon(0 0, 100% 0, 100% 80%, 98% 90%, 100% 98%, 100% 100%, 0 100%);
     }
 
-    /* Внутренняя картинка (появляется ПОД или НАД — важно!) */
+    /* Внутренняя картинка (другая!) */
     .inner-image {
       position: absolute;
       top: 0;
@@ -79,7 +74,7 @@
       height: 100%;
       opacity: 0;
       transition: opacity 0.7s ease-out;
-      z-index: 1; /* Под внешней, но когда внешняя уходит — видно */
+      z-index: 1;
     }
 
     .inner-image img {
@@ -88,7 +83,7 @@
       object-fit: cover;
     }
 
-    /* Активное состояние: внешние части улетают */
+    /* Анимация: части улетают */
     .tear-container.active .tear-image::before {
       transform: translateX(-120%) rotate(-10deg);
     }
@@ -97,7 +92,6 @@
       transform: translateX(120%) rotate(10deg);
     }
 
-    /* После активации — внутренняя картинка становится видимой */
     .tear-container.active .inner-image {
       opacity: 1;
     }
@@ -105,13 +99,14 @@
 </head>
 <body>
 
+  <!-- Контейнер -->
   <div class="tear-container" id="tearContainer">
     <!-- Внешняя картинка (фон) -->
     <div class="tear-image" id="tearImage"></div>
 
-    <!-- Внутренняя картинка (другая!) -->
+    <!-- ВНУТРЕННЯЯ картинка (другая!) -->
     <div class="inner-image">
-      <img src="https://wallpapers.com/images/hd/baby-yoda-zoom-background-0eckfo9n5xy5dij5.jpg">
+      <img src="https://via.placeholder.com/600x400/4ecdc4/ffffff?text=Секрет!" alt="Секрет">
     </div>
   </div>
 
@@ -120,10 +115,10 @@
       const container = document.getElementById("tearContainer");
       const imageDiv = document.getElementById("tearImage");
 
-      // ✅ Внешняя картинка (та, которую рвём)
-      imageDiv.style.backgroundImage = "url('https://i.pinimg.com/736x/26/ac/05/26ac058e68e836fe258aedbabdd2073c.jpg')";
+      // 🔹 Установка ВНЕШНЕЙ картинки (та, которую рвём)
+      imageDiv.style.backgroundImage = "url('https://via.placeholder.com/600x400/ff6b6b/ffffff?text=Нажми+меня')";
 
-      // Обработчик клика
+      // 🔹 Клик: запускаем анимацию
       imageDiv.addEventListener("click", () => {
         if (!container.classList.contains("active")) {
           container.classList.add("active");
