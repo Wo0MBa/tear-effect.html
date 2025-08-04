@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Разрывающаяся картинка</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f0f0f0;
+    }
+
+    .tear-container {
+      position: relative;
+      width: 600px;
+      height: 400px;
+      overflow: hidden;
+      cursor: pointer;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .tear-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .tear-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .tear-image::before,
+    .tear-image::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      background-image: inherit;
+      background-size: 200% 100%;
+      transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+      transform-origin: center;
+    }
+
+    .tear-image::before {
+      left: 0;
+      background-position: 0 0;
+      transform-origin: left;
+    }
+
+    .tear-image::after {
+      right: 0;
+      background-position: -100% 0;
+      transform-origin: right;
+    }
+
+    .inner-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.7s ease-out;
+      pointer-events: none;
+    }
+
+    .inner-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Активное состояние — картинка "разорвана" */
+    .tear-container.active .tear-image::before {
+      transform: translateX(-120%) rotate(-10deg);
+    }
+
+    .tear-container.active .tear-image::after {
+      transform: translateX(120%) rotate(10deg);
+    }
+
+    .tear-container.active .inner-image {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tear-container" id="tearContainer">
+    <!-- Внешняя картинка (разрывается) -->
+    <div class="tear-image" id="tearImage">
+      <img src="https://i.pinimg.com/736x/26/ac/05/26ac058e68e836fe258aedbabdd2073c.jpg>
+    </div>
+
+    <!-- Внутренняя картинка (открывается) -->
+    <div class="inner-image">
+      <img src="https://wallpapers.com/images/hd/baby-yoda-zoom-background-0eckfo9n5xy5dij5.jpg>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const container = document.getElementById("tearContainer");
+      const imageDiv = document.getElementById("tearImage");
+      const imgSrc = imageDiv.querySelector("img").src;
+
+      // Применяем изображение как фон для псевдоэлементов
+      imageDiv.style.backgroundImage = `url(${imgSrc})`;
+
+      // Обработчик клика
+      imageDiv.addEventListener("click", () => {
+        if (!container.classList.contains("active")) {
+          container.classList.add("active");
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
