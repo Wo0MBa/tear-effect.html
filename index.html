@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Эффект разрыва — просто и чисто</title>
+  <title>Бумага разрезана</title>
   <style>
     body {
       margin: 0;
@@ -23,38 +23,60 @@
       cursor: pointer;
     }
 
-    .img {
+    /* Внутренняя картинка (всегда под низом) */
+    .inner {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      border-radius: 8px;
-    }
-
-    /* Первая картинка */
-    .img-1 {
-      z-index: 2;
-      opacity: 1;
-      transition: transform 0.7s ease-out, opacity 0.7s ease-out;
-      transform: scale(1);
-    }
-
-    /* Активное состояние — анимация исчезновения */
-    .container.active .img-1 {
-      transform: scale(1.2) rotate(5deg);
       opacity: 0;
-      z-index: 1;
+      transition: opacity 0.8s ease-in-out;
     }
 
-    /* Вторая картинка (сначала скрыта) */
-    .img-2 {
-      z-index: 1;
-      opacity: 0;
-      transition: opacity 0.7s ease-out 0.1s;
+    .inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
-    .container.active .img-2 {
+    /* Левая и правая части внешней картинки */
+    .piece {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 50%;
+      overflow: hidden;
+    }
+
+    .piece img {
+      width: 200%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .left {
+      left: 0;
+    }
+
+    .right {
+      right: 0;
+    }
+
+    .left img, .right img {
+      transition: transform 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+    }
+
+    /* Активное состояние */
+    .container.active .left img {
+      transform: translateX(-102%);
+    }
+
+    .container.active .right img {
+      transform: translateX(102%);
+    }
+
+    .container.active .inner {
       opacity: 1;
     }
   </style>
@@ -62,17 +84,25 @@
 <body>
 
   <div class="container" id="container">
-    <!-- Первая картинка (та, что рвётся) -->
-    <img src="https://wallpapers.com/images/hd/cartoon-donkey-illustrationpng-n1ddqjninq5795hw.jpg" alt="Первая" class="img img-1">
+    <!-- Внутренняя картинка -->
+    <div class="inner">
+      <img src="https://i.pinimg.com/736x/3d/e6/07/3de60785f1307b00e2b7943a8007f969.jpg" alt="Секрет">
+    </div>
 
-    <!-- Вторая картинка (секрет) -->
-    <img src="https://i.pinimg.com/736x/be/45/55/be45551806f4955d1baf5485fe90e9b5.jpg" alt="Вторая" class="img img-2">
+    <!-- Левая половина внешней -->
+    <div class="piece left">
+      <img src="https://wallpapers.com/images/hd/cartoon-donkey-illustrationpng-n1ddqjninq5795hw.jpg" alt="Лево">
+    </div>
+
+    <!-- Правая половина -->
+    <div class="piece right">
+      <img src="https://wallpapers.com/images/hd/cartoon-donkey-illustrationpng-n1ddqjninq5795hw.jpg" alt="Право">
+    </div>
   </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const container = document.getElementById("container");
-
       container.addEventListener("click", () => {
         if (!container.classList.contains("active")) {
           container.classList.add("active");
