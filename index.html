@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Разрыв картинки</title>
+  <title>Эффект разрыва</title>
   <style>
     body {
       margin: 0;
@@ -13,17 +13,19 @@
       align-items: center;
       min-height: 100vh;
       background: transparent;
-      overflow: hidden;
     }
 
-    .container {
+    .tear-wrapper {
       position: relative;
       width: 300px;
       height: 200px;
       overflow: hidden;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
-    /* Внутренняя картинка (всегда под низом) */
+    /* Внутренняя картинка (под низом) */
     .inner-img {
       position: absolute;
       top: 0;
@@ -31,7 +33,7 @@
       width: 100%;
       height: 100%;
       opacity: 0;
-      transition: opacity 0.6s ease-out;
+      transition: opacity 0.7s ease-out;
       z-index: 1;
     }
 
@@ -41,84 +43,78 @@
       object-fit: cover;
     }
 
-    /* Левая половина внешней картинки */
-    .left-piece {
+    /* Внешняя картинка (целая) */
+    .outer-img {
       position: absolute;
       top: 0;
       left: 0;
-      width: 50%;
+      width: 100%;
       height: 100%;
-      overflow: hidden;
       z-index: 2;
+      transition: opacity 0.7s ease-out;
     }
 
-    .left-piece img {
-      width: 200%;
+    .outer-img img {
+      width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.7s cubic-bezier(0.6, 0, 0.4, 1);
+      border-radius: 8px;
     }
 
-    /* Правая половина */
-    .right-piece {
+    /* Эффект разрыва — тёмная полоса по центру */
+    .tear-effect {
       position: absolute;
       top: 0;
-      right: 0;
-      width: 50%;
+      left: 50%;
+      width: 2px;
       height: 100%;
-      overflow: hidden;
-      z-index: 2;
-    }
-
-    .right-piece img {
-      width: 200%;
-      height: 100%;
-      object-fit: cover;
-      transform-origin: right;
-      transition: transform 0.7s cubic-bezier(0.6, 0, 0.4, 1);
+      background: rgba(0, 0, 0, 0.3);
+      transform: translateX(-50%);
+      opacity: 0;
+      z-index: 3;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     }
 
     /* Активное состояние */
-    .container.active .left-piece img {
-      transform: translateX(-100%) rotate(-5deg);
+    .tear-wrapper.active .tear-effect {
+      opacity: 1;
     }
 
-    .container.active .right-piece img {
-      transform: translateX(100%) rotate(5deg);
+    .tear-wrapper.active .outer-img {
+      opacity: 0;
     }
 
-    .container.active .inner-img {
+    .tear-wrapper.active .inner-img {
       opacity: 1;
     }
   </style>
 </head>
 <body>
 
-  <div class="container" id="container">
-    <!-- Внутренняя картинка (сначала скрыта) -->
+  <div class="tear-wrapper" id="tearWrapper">
+    <!-- Внутренняя картинка -->
     <div class="inner-img">
       <img src="https://cs2.livemaster.ru/storage/55/4c/3c4624dde213b345d993a5a238ut--podarki-k-prazdnikam-figurka-grogu-iz-seriala-mandalorets.jpg" alt="Секрет">
     </div>
 
-    <!-- Левая половина внешней картинки -->
-    <div class="left-piece" id="leftPiece">
-      <img src="https://i.pinimg.com/736x/26/ac/05/26ac058e68e836fe258aedbabdd2073c.jpg" alt="Лево">
+    <!-- Внешняя картинка (целая) -->
+    <div class="outer-img">
+      <img src="https://i.pinimg.com/736x/26/ac/05/26ac058e68e836fe258aedbabdd2073c.jpg" alt="Мандалорец">
     </div>
 
-    <!-- Правая половина -->
-    <div class="right-piece" id="rightPiece">
-      <img src="https://i.pinimg.com/736x/26/ac/05/26ac058e68e836fe258aedbabdd2073c.jpg" alt="Право">
-    </div>
+    <!-- Эффект разрыва -->
+    <div class="tear-effect"></div>
   </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const container = document.getElementById("container");
+      const wrapper = document.getElementById("tearWrapper");
 
-      // При клике — активируем анимацию
-      container.addEventListener("click", () => {
-        if (!container.classList.contains("active")) {
-          container.classList.add("active");
+      wrapper.addEventListener("click", () => {
+        if (!wrapper.classList.contains("active")) {
+          wrapper.classList.add("active");
         }
       });
     });
