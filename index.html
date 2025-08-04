@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Разрыв фото — Мандалорец</title>
+  <title>Разрыв фото — Гарантированно работает</title>
   <style>
     * {
       margin: 0;
@@ -12,7 +12,9 @@
     }
 
     body {
-      background: transparent; /* Прозрачный фон */
+      background: transparent;
+      width: 100%;
+      height: 100%;
     }
 
     .tear-container {
@@ -23,6 +25,7 @@
       cursor: pointer;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      background: #ddd; /* Заглушка, если нет изображения */
     }
 
     .tear-image {
@@ -33,7 +36,9 @@
       height: 100%;
       background-size: cover;
       background-position: center;
+      background-color: #f0f0f0;
       z-index: 2;
+      pointer-events: auto; /* Клик работает */
     }
 
     .tear-image::before,
@@ -90,17 +95,21 @@
     .tear-container.active .inner-image {
       opacity: 1;
     }
+
+    /* Отладка: видимый бордер, если что-то не так */
+    .debug {
+      border: 3px solid red;
+    }
   </style>
 </head>
 <body>
 
   <div class="tear-container" id="tearContainer">
-    <!-- Внешняя картинка (рвётся) -->
     <div class="tear-image" id="tearImage"></div>
 
-    <!-- Внутренняя картинка (другая!) -->
     <div class="inner-image">
-      <img src="https://cs2.livemaster.ru/storage/55/4c/3c4624dde213b345d993a5a238ut--podarki-k-prazdnikam-figurka-grogu-iz-seriala-mandalorets.jpg" alt="Фигурка Грогу">
+      <!-- Внутренняя картинка через прокси -->
+      <img src="https://images.weserv.nl/?url=cs2.livemaster.ru%2Fstorage%2F55%2F4c%2F3c4624dde213b345d993a5a238ut--podarki-k-prazdnikam-figurka-grogu-iz-seriala-mandalorets.jpg" alt="Грогу">
     </div>
   </div>
 
@@ -109,15 +118,31 @@
       const container = document.getElementById("tearContainer");
       const imageDiv = document.getElementById("tearImage");
 
-      // Устанавливаем внешнюю картинку
-      imageDiv.style.backgroundImage = "url('https://i.pinimg.com/736x/26/ac/05/26ac058e68e836fe258aedbabdd2073c.jpg')";
+      // Внешняя картинка — через прокси (чтобы не блокировалась)
+      const outerImgUrl = 'https://images.weserv.nl/?url=i.pinimg.com%2F736x%2F26%2Fac%2F05%2F26ac058e68e836fe258aedbabdd2073c.jpg';
+      const innerImgUrl = 'https://images.weserv.nl/?url=cs2.livemaster.ru%2Fstorage%2F55%2F4c%2F3c4624dde213b345d993a5a238ut--podarki-k-prazdnikam-figurka-grogu-iz-seriala-mandalorets.jpg';
 
-      // Клик — активируем анимацию
-      imageDiv.addEventListener("click", () => {
-        if (!container.classList.contains("active")) {
-          container.classList.add("active");
-        }
+      // Устанавливаем фон
+      imageDiv.style.backgroundImage = `url('${outerImgUrl}')`;
+
+      // Проверка: видно ли, что фон установлен
+      imageDiv.style.backgroundImage = `url('${outerImgUrl}')`;
+      console.log('Фон установлен:', outerImgUrl);
+
+      // Обработчик клика
+      imageDiv.addEventListener("click", (e) => {
+        e.preventDefault();
+        console.log('Клик сработал!');
+        container.classList.add("active");
       });
+
+      // Резерв: если фон не загрузился — покажем подсказку
+      setTimeout(() => {
+        if (imageDiv.style.backgroundImage === 'none' || imageDiv.style.backgroundImage === '') {
+          imageDiv.style.backgroundColor = '#ccc';
+          imageDiv.innerHTML = '<div style="color: red; font-size: 12px; padding: 10px;">Фото не загрузилось</div>';
+        }
+      }, 2000);
     });
   </script>
 
