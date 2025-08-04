@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Разрыв фото</title>
+  <title>Разрыв фото — Мандалорец</title>
   <style>
     * {
       margin: 0;
@@ -12,7 +12,7 @@
     }
 
     body {
-      background: transparent; /* 🔹 Прозрачный фон */
+      background: transparent; /* Прозрачный фон */
     }
 
     .tear-container {
@@ -22,11 +22,9 @@
       overflow: hidden;
       cursor: pointer;
       border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      background: transparent;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
-    /* Внешняя картинка (разрывается) */
     .tear-image {
       position: absolute;
       top: 0;
@@ -38,7 +36,6 @@
       z-index: 2;
     }
 
-    /* Левая и правая половины */
     .tear-image::before,
     .tear-image::after {
       content: '';
@@ -65,7 +62,6 @@
       clip-path: polygon(0 0, 100% 0, 100% 80%, 98% 90%, 100% 98%, 100% 100%, 0 100%);
     }
 
-    /* Внутренняя картинка (другая!) */
     .inner-image {
       position: absolute;
       top: 0;
@@ -83,7 +79,6 @@
       object-fit: cover;
     }
 
-    /* Анимация: части улетают */
     .tear-container.active .tear-image::before {
       transform: translateX(-120%) rotate(-10deg);
     }
@@ -99,14 +94,13 @@
 </head>
 <body>
 
-  <!-- Контейнер -->
   <div class="tear-container" id="tearContainer">
-    <!-- Внешняя картинка (фон) -->
+    <!-- Внешняя картинка (рвётся) -->
     <div class="tear-image" id="tearImage"></div>
 
-    <!-- ВНУТРЕННЯЯ картинка (другая!) -->
+    <!-- Внутренняя картинка (другая!) -->
     <div class="inner-image">
-      <img src="https://via.placeholder.com/600x400/4ecdc4/ffffff?text=Секрет!" alt="Секрет">
+      <img src="https://cs2.livemaster.ru/storage/55/4c/3c4624dde213b345d993a5a238ut--podarki-k-prazdnikam-figurka-grogu-iz-seriala-mandalorets.jpg" alt="Фигурка Грогу">
     </div>
   </div>
 
@@ -115,10 +109,10 @@
       const container = document.getElementById("tearContainer");
       const imageDiv = document.getElementById("tearImage");
 
-      // 🔹 Установка ВНЕШНЕЙ картинки (та, которую рвём)
-      imageDiv.style.backgroundImage = "url('https://via.placeholder.com/600x400/ff6b6b/ffffff?text=Нажми+меня')";
+      // Устанавливаем внешнюю картинку
+      imageDiv.style.backgroundImage = "url('https://i.pinimg.com/736x/26/ac/05/26ac058e68e836fe258aedbabdd2073c.jpg')";
 
-      // 🔹 Клик: запускаем анимацию
+      // Клик — активируем анимацию
       imageDiv.addEventListener("click", () => {
         if (!container.classList.contains("active")) {
           container.classList.add("active");
