@@ -3,146 +3,124 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Разрыв фото — Гарантированно работает</title>
+  <title>Разрыв картинки</title>
   <style>
-    * {
+    body {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
       background: transparent;
-      width: 100%;
-      height: 100%;
+      overflow: hidden;
     }
 
-    .tear-container {
+    .container {
       position: relative;
       width: 300px;
       height: 200px;
       overflow: hidden;
-      cursor: pointer;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      background: #ddd; /* Заглушка, если нет изображения */
     }
 
-    .tear-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center;
-      background-color: #f0f0f0;
-      z-index: 2;
-      pointer-events: auto; /* Клик работает */
-    }
-
-    .tear-image::before,
-    .tear-image::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      width: 50%;
-      height: 100%;
-      background: inherit;
-      background-size: 200% 100%;
-      transition: transform 0.7s cubic-bezier(0.2, 0.6, 0.2, 1);
-    }
-
-    .tear-image::before {
-      left: 0;
-      background-position: 0 0;
-      transform-origin: left;
-      clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 98%, 2% 90%, 0 80%);
-    }
-
-    .tear-image::after {
-      right: 0;
-      background-position: -100% 0;
-      transform-origin: right;
-      clip-path: polygon(0 0, 100% 0, 100% 80%, 98% 90%, 100% 98%, 100% 100%, 0 100%);
-    }
-
-    .inner-image {
+    /* Внутренняя картинка (всегда под низом) */
+    .inner-img {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       opacity: 0;
-      transition: opacity 0.7s ease-out;
+      transition: opacity 0.6s ease-out;
       z-index: 1;
     }
 
-    .inner-image img {
+    .inner-img img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .tear-container.active .tear-image::before {
-      transform: translateX(-120%) rotate(-10deg);
+    /* Левая половина внешней картинки */
+    .left-piece {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 2;
     }
 
-    .tear-container.active .tear-image::after {
-      transform: translateX(120%) rotate(10deg);
+    .left-piece img {
+      width: 200%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s cubic-bezier(0.6, 0, 0.4, 1);
     }
 
-    .tear-container.active .inner-image {
+    /* Правая половина */
+    .right-piece {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 50%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .right-piece img {
+      width: 200%;
+      height: 100%;
+      object-fit: cover;
+      transform-origin: right;
+      transition: transform 0.7s cubic-bezier(0.6, 0, 0.4, 1);
+    }
+
+    /* Активное состояние */
+    .container.active .left-piece img {
+      transform: translateX(-100%) rotate(-5deg);
+    }
+
+    .container.active .right-piece img {
+      transform: translateX(100%) rotate(5deg);
+    }
+
+    .container.active .inner-img {
       opacity: 1;
-    }
-
-    /* Отладка: видимый бордер, если что-то не так */
-    .debug {
-      border: 3px solid red;
     }
   </style>
 </head>
 <body>
 
-  <div class="tear-container" id="tearContainer">
-    <div class="tear-image" id="tearImage"></div>
+  <div class="container" id="container">
+    <!-- Внутренняя картинка (сначала скрыта) -->
+    <div class="inner-img">
+      <img src="https://cs2.livemaster.ru/storage/55/4c/3c4624dde213b345d993a5a238ut--podarki-k-prazdnikam-figurka-grogu-iz-seriala-mandalorets.jpg" alt="Секрет">
+    </div>
 
-    <div class="inner-image">
-      <!-- Внутренняя картинка через прокси -->
-      <img src="https://images.weserv.nl/?url=cs2.livemaster.ru%2Fstorage%2F55%2F4c%2F3c4624dde213b345d993a5a238ut--podarki-k-prazdnikam-figurka-grogu-iz-seriala-mandalorets.jpg" alt="Грогу">
+    <!-- Левая половина внешней картинки -->
+    <div class="left-piece" id="leftPiece">
+      <img src="https://i.pinimg.com/736x/26/ac/05/26ac058e68e836fe258aedbabdd2073c.jpg" alt="Лево">
+    </div>
+
+    <!-- Правая половина -->
+    <div class="right-piece" id="rightPiece">
+      <img src="https://i.pinimg.com/736x/26/ac/05/26ac058e68e836fe258aedbabdd2073c.jpg" alt="Право">
     </div>
   </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const container = document.getElementById("tearContainer");
-      const imageDiv = document.getElementById("tearImage");
+      const container = document.getElementById("container");
 
-      // Внешняя картинка — через прокси (чтобы не блокировалась)
-      const outerImgUrl = 'https://images.weserv.nl/?url=i.pinimg.com%2F736x%2F26%2Fac%2F05%2F26ac058e68e836fe258aedbabdd2073c.jpg';
-      const innerImgUrl = 'https://images.weserv.nl/?url=cs2.livemaster.ru%2Fstorage%2F55%2F4c%2F3c4624dde213b345d993a5a238ut--podarki-k-prazdnikam-figurka-grogu-iz-seriala-mandalorets.jpg';
-
-      // Устанавливаем фон
-      imageDiv.style.backgroundImage = `url('${outerImgUrl}')`;
-
-      // Проверка: видно ли, что фон установлен
-      imageDiv.style.backgroundImage = `url('${outerImgUrl}')`;
-      console.log('Фон установлен:', outerImgUrl);
-
-      // Обработчик клика
-      imageDiv.addEventListener("click", (e) => {
-        e.preventDefault();
-        console.log('Клик сработал!');
-        container.classList.add("active");
-      });
-
-      // Резерв: если фон не загрузился — покажем подсказку
-      setTimeout(() => {
-        if (imageDiv.style.backgroundImage === 'none' || imageDiv.style.backgroundImage === '') {
-          imageDiv.style.backgroundColor = '#ccc';
-          imageDiv.innerHTML = '<div style="color: red; font-size: 12px; padding: 10px;">Фото не загрузилось</div>';
+      // При клике — активируем анимацию
+      container.addEventListener("click", () => {
+        if (!container.classList.contains("active")) {
+          container.classList.add("active");
         }
-      }, 2000);
+      });
     });
   </script>
 
