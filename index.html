@@ -25,49 +25,55 @@
       height: 400px;
       overflow: hidden;
       cursor: pointer;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
 
+    /* Внешняя картинка будет фоном */
     .tear-image {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
+      background-size: cover;
+      background-position: center;
+      z-index: 10;
     }
 
-    .tear-image img {
-      width: 100%;
+    /* Левая половина */
+    .tear-image::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
       height: 100%;
-      object-fit: cover;
+      background: inherit;
+      background-position: 0 0;
+      transform-origin: left;
+      transition: transform 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0% 98%, 2% 90%, 0 80%);
+      border-right: 2px solid #ccc;
     }
 
-    .tear-image::before,
+    /* Правая половина */
     .tear-image::after {
       content: '';
       position: absolute;
       top: 0;
+      right: 0;
       width: 50%;
       height: 100%;
-      background-image: inherit;
-      background-size: 200% 100%;
-      transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1);
-      transform-origin: center;
-    }
-
-    .tear-image::before {
-      left: 0;
-      background-position: 0 0;
-      transform-origin: left;
-    }
-
-    .tear-image::after {
-      right: 0;
+      background: inherit;
       background-position: -100% 0;
       transform-origin: right;
+      transition: transform 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
+      clip-path: polygon(0 0, 100% 0, 100% 80%, 98% 90%, 100% 98%, 100% 100%, 0 100%);
+      border-left: 2px solid #ccc;
     }
 
+    /* Внутренняя картинка (под "разорванной") */
     .inner-image {
       position: absolute;
       top: 0;
@@ -75,8 +81,8 @@
       width: 100%;
       height: 100%;
       opacity: 0;
-      transition: opacity 0.7s ease-out;
-      pointer-events: none;
+      transition: opacity 0.8s ease-out;
+      z-index: 1;
     }
 
     .inner-image img {
@@ -85,13 +91,13 @@
       object-fit: cover;
     }
 
-    /* Активное состояние — картинка "разорвана" */
+    /* Активное состояние: части уходят в стороны */
     .tear-container.active .tear-image::before {
-      transform: translateX(-120%) rotate(-10deg);
+      transform: translateX(-100%) rotate(-10deg);
     }
 
     .tear-container.active .tear-image::after {
-      transform: translateX(120%) rotate(10deg);
+      transform: translateX(100%) rotate(10deg);
     }
 
     .tear-container.active .inner-image {
@@ -102,14 +108,12 @@
 <body>
 
   <div class="tear-container" id="tearContainer">
-    <!-- Внешняя картинка (разрывается) -->
-    <div class="tear-image" id="tearImage">
-      <img src="https://i.pinimg.com/736x/26/ac/05/26ac058e68e836fe258aedbabdd2073c.jpg>
-    </div>
+    <!-- Внешняя картинка как фон -->
+    <div class="tear-image" id="tearImage"></div>
 
-    <!-- Внутренняя картинка (открывается) -->
+    <!-- Внутренняя картинка (появляется после разрыва) -->
     <div class="inner-image">
-      <img src="https://wallpapers.com/images/hd/baby-yoda-zoom-background-0eckfo9n5xy5dij5.jpg>
+      <img src="https://via.placeholder.com/600x400/4ecdc4/ffffff?text=Сюрприз+внутри!" alt="Внутренняя">
     </div>
   </div>
 
@@ -117,10 +121,9 @@
     document.addEventListener("DOMContentLoaded", () => {
       const container = document.getElementById("tearContainer");
       const imageDiv = document.getElementById("tearImage");
-      const imgSrc = imageDiv.querySelector("img").src;
 
-      // Применяем изображение как фон для псевдоэлементов
-      imageDiv.style.backgroundImage = `url(${imgSrc})`;
+      // 🔁 Убедимся, что фон установлен (можно поменять на свою картинку)
+      imageDiv.style.backgroundImage = "url('https://via.placeholder.com/600x400/ff6b6b/ffffff?text=Нажми+и+разорви')";
 
       // Обработчик клика
       imageDiv.addEventListener("click", () => {
