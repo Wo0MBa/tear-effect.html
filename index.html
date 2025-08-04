@@ -19,17 +19,18 @@
       background: #f0f0f0;
     }
 
+    /* Уменьшенный размер: в 2 раза меньше (было 600x400 → стало 300x200) */
     .tear-container {
       position: relative;
-      width: 600px;
-      height: 400px;
+      width: 300px;
+      height: 200px;
       overflow: hidden;
       cursor: pointer;
-      border-radius: 10px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
-    /* Внешняя картинка будет фоном */
+    /* Внешняя картинка (разрывается) */
     .tear-image {
       position: absolute;
       top: 0;
@@ -38,42 +39,38 @@
       height: 100%;
       background-size: cover;
       background-position: center;
-      z-index: 10;
+      z-index: 2; /* Над внутренней, пока не активно */
     }
 
     /* Левая половина */
-    .tear-image::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 50%;
-      height: 100%;
-      background: inherit;
-      background-position: 0 0;
-      transform-origin: left;
-      transition: transform 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
-      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0% 98%, 2% 90%, 0 80%);
-      border-right: 2px solid #ccc;
-    }
-
-    /* Правая половина */
+    .tear-image::before,
     .tear-image::after {
       content: '';
       position: absolute;
       top: 0;
-      right: 0;
       width: 50%;
       height: 100%;
       background: inherit;
-      background-position: -100% 0;
-      transform-origin: right;
-      transition: transform 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
-      clip-path: polygon(0 0, 100% 0, 100% 80%, 98% 90%, 100% 98%, 100% 100%, 0 100%);
-      border-left: 2px solid #ccc;
+      background-size: 200% 100%;
+      transition: transform 0.7s cubic-bezier(0.2, 0.6, 0.2, 1);
+      transform-origin: center;
     }
 
-    /* Внутренняя картинка (под "разорванной") */
+    .tear-image::before {
+      left: 0;
+      background-position: 0 0;
+      transform-origin: left;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 98%, 2% 90%, 0 80%);
+    }
+
+    .tear-image::after {
+      right: 0;
+      background-position: -100% 0;
+      transform-origin: right;
+      clip-path: polygon(0 0, 100% 0, 100% 80%, 98% 90%, 100% 98%, 100% 100%, 0 100%);
+    }
+
+    /* Внутренняя картинка (появляется ПОД или НАД — важно!) */
     .inner-image {
       position: absolute;
       top: 0;
@@ -81,8 +78,8 @@
       width: 100%;
       height: 100%;
       opacity: 0;
-      transition: opacity 0.8s ease-out;
-      z-index: 1;
+      transition: opacity 0.7s ease-out;
+      z-index: 1; /* Под внешней, но когда внешняя уходит — видно */
     }
 
     .inner-image img {
@@ -91,15 +88,16 @@
       object-fit: cover;
     }
 
-    /* Активное состояние: части уходят в стороны */
+    /* Активное состояние: внешние части улетают */
     .tear-container.active .tear-image::before {
-      transform: translateX(-100%) rotate(-10deg);
+      transform: translateX(-120%) rotate(-10deg);
     }
 
     .tear-container.active .tear-image::after {
-      transform: translateX(100%) rotate(10deg);
+      transform: translateX(120%) rotate(10deg);
     }
 
+    /* После активации — внутренняя картинка становится видимой */
     .tear-container.active .inner-image {
       opacity: 1;
     }
@@ -108,10 +106,10 @@
 <body>
 
   <div class="tear-container" id="tearContainer">
-    <!-- Внешняя картинка как фон -->
+    <!-- Внешняя картинка (фон) -->
     <div class="tear-image" id="tearImage"></div>
 
-    <!-- Внутренняя картинка (появляется после разрыва) -->
+    <!-- Внутренняя картинка (другая!) -->
     <div class="inner-image">
       <img src="https://wallpapers.com/images/hd/baby-yoda-zoom-background-0eckfo9n5xy5dij5.jpg">
     </div>
@@ -122,7 +120,7 @@
       const container = document.getElementById("tearContainer");
       const imageDiv = document.getElementById("tearImage");
 
-      // 🔁 Убедимся, что фон установлен (можно поменять на свою картинку)
+      // ✅ Внешняя картинка (та, которую рвём)
       imageDiv.style.backgroundImage = "url('https://i.pinimg.com/736x/26/ac/05/26ac058e68e836fe258aedbabdd2073c.jpg')";
 
       // Обработчик клика
