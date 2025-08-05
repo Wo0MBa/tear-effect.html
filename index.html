@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Egg Hatching Effect</title>
+  <title>Split Vertical Effect</title>
   <style>
     body, html {
       margin: 0;
@@ -25,176 +25,93 @@
       justify-content: center;
       align-items: center;
     }
-    .shatter-img {
-      width: 200px;
+    .main-image {
+      width: 300px;
       height: 200px;
       cursor: pointer;
       object-fit: cover;
       z-index: 20;
       position: absolute;
-      transition: all 0.3s ease;
+      transition: transform 0.2s ease;
     }
-    .shatter-img:hover {
-      transform: scale(1.05);
+    .main-image:hover {
+      transform: scale(1.03);
     }
-    .piece {
+    .half {
       position: absolute;
+      object-fit: cover;
       pointer-events: none;
       z-index: 15;
     }
-    .revealed-image {
-      width: 120px;
-      height: 120px;
-      object-fit: cover;
-      opacity: 0;
-      transform: scale(0.1);
-      z-index: 10;
-      position: absolute;
+    .half-top {
+      width: 300px;
+      height: 100px;
+      clip-path: polygon(0 0, 300px 0, 300px 100px, 0 100px);
     }
-    .revealed-image.show {
-      opacity: 1;
-      transform: scale(1);
-      transition: all 2s cubic-bezier(0.2, 0.8, 0.3, 1);
-    }
-    .crack-effect {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 18;
-      opacity: 0;
+    .half-bottom {
+      width: 300px;
+      height: 100px;
+      clip-path: polygon(0 0, 300px 0, 300px 100px, 0 100px);
+      top: 100px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="" alt="" class="shatter-img" id="shatterImg">
-    <img src="" alt="" class="revealed-image" id="revealedImg">
-    <div class="crack-effect" id="crackEffect"></div>
+    <img src="" alt="" class="main-image" id="mainImg">
   </div>
 
   <script>
-    // Получаем параметры из URL
+    // Получаем параметр из URL
     const urlParams = new URLSearchParams(window.location.search);
-    const firstImgUrl = urlParams.get('firstImg') || 'https://wallpapers.com/images/hd/cartoon-donkey-illustrationpng-n1ddqjninq5795hw.jpg';
-    const secondImgUrl = urlParams.get('secondImg') || 'https://i.pinimg.com/736x/3d/e6/07/3de60785f1307b00e2b7943a8007f969.jpg';
+    const imgUrl = urlParams.get('img') || 'https://i.pinimg.com/736x/3d/e6/07/3de60785f1307b00e2b7943a8007f969.jpg';
 
-    // Устанавливаем изображения
-    const shatterImg = document.getElementById("shatterImg");
-    const revealedImg = document.getElementById("revealedImg");
-    const crackEffect = document.getElementById("crackEffect");
-    
-    shatterImg.src = firstImgUrl;
-    revealedImg.src = secondImgUrl;
+    // Устанавливаем изображение
+    const mainImg = document.getElementById("mainImg");
+    mainImg.src = imgUrl;
 
-    shatterImg.addEventListener("click", function(e) {
-      const rect = shatterImg.getBoundingClientRect();
-      const container = shatterImg.closest('.container');
+    mainImg.addEventListener("click", function(e) {
+      const rect = mainImg.getBoundingClientRect();
+      const container = mainImg.closest('.container');
       
-      // Центральные координаты для внутренней картинки
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-
-      // Позиционируем внутреннюю картинку в центре
-      revealedImg.style.left = (centerX - 60) + 'px';
-      revealedImg.style.top = (centerY - 60) + 'px';
-
-      // Делаем изображение полупрозрачным в начале
-      shatterImg.style.opacity = '0.7';
-      shatterImg.style.pointerEvents = 'none';
-
-      // Создаем эффект трещин
-      createCrackEffect(rect);
-
-      // Поэтапное разрушение (медленное)
+      // Скрываем оригинальное изображение
+      mainImg.style.pointerEvents = 'none';
+      
+      // Создаем верхнюю половину
+      const topHalf = document.createElement('img');
+      topHalf.classList.add('half', 'half-top');
+      topHalf.src = imgUrl;
+      topHalf.style.left = rect.left + 'px';
+      topHalf.style.top = rect.top + 'px';
+      topHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
+      
+      // Создаем нижнюю половину
+      const bottomHalf = document.createElement('img');
+      bottomHalf.classList.add('half', 'half-bottom');
+      bottomHalf.src = imgUrl;
+      bottomHalf.style.left = rect.left + 'px';
+      bottomHalf.style.top = (rect.top + 100) + 'px';
+      bottomHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
+      
+      container.appendChild(topHalf);
+      container.appendChild(bottomHalf);
+      
+      // Анимация разлета вверх и вниз
       setTimeout(() => {
-        createShatterPieces(rect, container);
-      }, 500);
-
-      // Появление внутреннего изображения
+        topHalf.style.transform = 'translateY(-100px) rotate(-10deg)';
+        topHalf.style.opacity = '0';
+        
+        bottomHalf.style.transform = 'translateY(100px) rotate(10deg)';
+        bottomHalf.style.opacity = '0';
+      }, 10);
+      
+      // Удаляем элементы после анимации
       setTimeout(() => {
-        revealedImg.classList.add('show');
-      }, 800);
-
-      // Полное удаление внешнего изображения
-      setTimeout(() => {
-        shatterImg.style.display = 'none';
-      }, 2500);
+        topHalf.remove();
+        bottomHalf.remove();
+        mainImg.style.display = 'none';
+      }, 1000);
     });
-
-    function createCrackEffect(rect) {
-      const crackEffect = document.getElementById("crackEffect");
-      crackEffect.style.left = rect.left + 'px';
-      crackEffect.style.top = rect.top + 'px';
-      crackEffect.style.width = rect.width + 'px';
-      crackEffect.style.height = rect.height + 'px';
-      
-      // Анимация трещин
-      crackEffect.style.background = `
-        radial-gradient(circle at 30% 40%, transparent 20px, rgba(255,255,255,0.3) 22px, transparent 24px),
-        radial-gradient(circle at 70% 30%, transparent 15px, rgba(255,255,255,0.2) 17px, transparent 19px),
-        radial-gradient(circle at 50% 70%, transparent 25px, rgba(255,255,255,0.4) 27px, transparent 29px)
-      `;
-      
-      crackEffect.style.opacity = '1';
-      crackEffect.style.transition = 'opacity 1.5s ease';
-      
-      setTimeout(() => {
-        crackEffect.style.opacity = '0';
-      }, 1500);
-    }
-
-    function createShatterPieces(rect, container) {
-      const pieceW = 25;
-      const pieceH = 25;
-      const rows = Math.ceil(rect.height / pieceH);
-      const cols = Math.ceil(rect.width / pieceW);
-
-      // Создаем кусочки поэтапно
-      let delay = 0;
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-          setTimeout(() => {
-            const piece = document.createElement('div');
-            piece.classList.add('piece');
-            piece.style.width = pieceW + 'px';
-            piece.style.height = pieceH + 'px';
-            piece.style.backgroundImage = 'url(\'' + shatterImg.src + '\')';
-            piece.style.backgroundSize = rect.width + 'px ' + rect.height + 'px';
-            piece.style.backgroundPosition = '-' + (col * pieceW) + 'px -' + (row * pieceH) + 'px';
-            piece.style.left = (rect.left + col * pieceW) + 'px';
-            piece.style.top = (rect.top + row * pieceH) + 'px';
-
-            // Медленное движение кусочков
-            const angle = (Math.random() - 0.5) * Math.PI; // Основное движение наружу
-            const speed = 10 + Math.random() * 30;
-            const vx = Math.cos(angle) * speed;
-            const vy = Math.sin(angle) * speed - 5; // Немного вверх
-            const rotation = -20 + Math.random() * 40;
-            const scale = 0.8 + Math.random() * 0.4;
-
-            container.appendChild(piece);
-
-            // Медленная анимация разлета
-            setTimeout(() => {
-              piece.style.transition = 'all 1.8s cubic-bezier(0.1, 0.7, 0.1, 1)';
-              piece.style.transform = `translate(${vx}px, ${vy}px) rotate(${rotation}deg) scale(${scale})`;
-              piece.style.opacity = '0.8';
-            }, 10);
-
-            // Удаление кусочков
-            setTimeout(() => {
-              piece.style.transition = 'opacity 0.5s ease';
-              piece.style.opacity = '0';
-              setTimeout(() => piece.remove(), 500);
-            }, 1800);
-
-          }, delay);
-          
-          delay += 20; // Постепенное появление кусочков
-        }
-      }
-    }
   </script>
 </body>
 </html>
