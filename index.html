@@ -63,10 +63,14 @@
       const rect = mainImg.getBoundingClientRect();
       const container = mainImg.closest('.container');
       
-      // Фиксированные размеры для уменьшенной картинки
+      // Точные размеры уменьшенной картинки
       const displayWidth = 300;
       const displayHeight = 200;
       const halfHeight = 100;
+      
+      // Точные координаты центра картинки
+      const imgLeft = (window.innerWidth - displayWidth) / 2;
+      const imgTop = (window.innerHeight - displayHeight) / 2;
       
       // Скрываем оригинальное изображение
       mainImg.style.pointerEvents = 'none';
@@ -79,10 +83,10 @@
       topHalf.style.width = displayWidth + 'px';
       topHalf.style.height = displayHeight + 'px';
       topHalf.style.objectFit = 'contain';
-      topHalf.style.objectPosition = '0 0';
+      topHalf.style.objectPosition = 'center';
       topHalf.style.clipPath = 'polygon(0 0, 100% 0, 100% 50%, 0 50%)';
-      topHalf.style.left = rect.left + 'px';
-      topHalf.style.top = rect.top + 'px';
+      topHalf.style.left = imgLeft + 'px';
+      topHalf.style.top = imgTop + 'px';
       
       // Создаем нижнюю половину
       const bottomHalf = document.createElement('img');
@@ -91,10 +95,10 @@
       bottomHalf.style.width = displayWidth + 'px';
       bottomHalf.style.height = displayHeight + 'px';
       bottomHalf.style.objectFit = 'contain';
-      bottomHalf.style.objectPosition = '0 0';
+      bottomHalf.style.objectPosition = 'center';
       bottomHalf.style.clipPath = 'polygon(0 50%, 100% 50%, 100% 100%, 0 100%)';
-      bottomHalf.style.left = rect.left + 'px';
-      bottomHalf.style.top = rect.top + 'px';
+      bottomHalf.style.left = imgLeft + 'px';
+      bottomHalf.style.top = imgTop + 'px';
       
       container.appendChild(topHalf);
       container.appendChild(bottomHalf);
