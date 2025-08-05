@@ -79,18 +79,14 @@
       const rect = mainImg.getBoundingClientRect();
       const container = mainImg.closest('.container');
       
-      // Скрываем оригинальное изображение
-      mainImg.style.pointerEvents = 'none';
-      mainImg.style.opacity = '0';
-      
-      // Создаем верхнюю половину
+      // Создаем верхнюю половину (копию оригинала)
       const topHalf = document.createElement('img');
       topHalf.classList.add('half', 'half-top');
       topHalf.src = imgUrl;
       topHalf.style.left = rect.left + 'px';
       topHalf.style.top = rect.top + 'px';
       
-      // Создаем нижнюю половину
+      // Создаем нижнюю половину (копию оригинала)
       const bottomHalf = document.createElement('img');
       bottomHalf.classList.add('half', 'half-bottom');
       bottomHalf.src = imgUrl;
@@ -100,23 +96,38 @@
       container.appendChild(topHalf);
       container.appendChild(bottomHalf);
       
-      // Анимация разлета вверх и вниз
+      // Скрываем оригинальное изображение
+      mainImg.style.pointerEvents = 'none';
+      mainImg.style.opacity = '0';
+      
+      // Анимация разлета вверх и вниз (эффект разрыва)
       setTimeout(() => {
         topHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
+        topHalf.style.transform = 'translateY(-50px)';
+        topHalf.style.opacity = '1';
+        
+        bottomHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
+        bottomHalf.style.transform = 'translateY(50px)';
+        bottomHalf.style.opacity = '1';
+      }, 10);
+      
+      // Затем разлет в стороны
+      setTimeout(() => {
+        topHalf.style.transition = 'all 0.8s cubic-bezier(0.2, 0.8, 0.3, 1)';
         topHalf.style.transform = 'translateY(-150px)';
         topHalf.style.opacity = '0';
         
-        bottomHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
+        bottomHalf.style.transition = 'all 0.8s cubic-bezier(0.2, 0.8, 0.3, 1)';
         bottomHalf.style.transform = 'translateY(150px)';
         bottomHalf.style.opacity = '0';
-      }, 10);
+      }, 300);
       
       // Удаляем элементы после анимации
       setTimeout(() => {
         topHalf.remove();
         bottomHalf.remove();
         mainImg.style.display = 'none';
-      }, 1100);
+      }, 1200);
     });
   </script>
 </body>
