@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Split Vertical Effect</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .main-image {
+      width: 300px;
+      height: 200px;
+      cursor: pointer;
+      object-fit: contain;
+      z-index: 20;
+      position: absolute;
+      transition: transform 0.2s ease;
+      border: none;
+      outline: none;
+    }
+    .main-image:hover {
+      transform: scale(1.03);
+    }
+    .half {
+      position: absolute;
+      pointer-events: none;
+      z-index: 15;
+      border: none;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Звуковой элемент -->
+  <audio id="split-sound" preload="auto">
+    <source src="sounds/click.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="container">
+    <img src="" alt="" class="main-image" id="mainImg">
+  </div>
+
+  <script>
+    // Получаем звуковой элемент
+    const splitSound = document.getElementById('split-sound');
+
+    // Улучшенная функция для воспроизведения звука
+    function playSound(soundElement) {
+      if (!soundElement) {
+        console.log("Звуковой элемент не найден");
+        return;
+      }
+      
+      try {
+        if (soundElement.currentTime) {
+          soundElement.currentTime = 0;
+        }
+        
+        const playPromise = soundElement.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.log("Звук заблокирован браузером:", error);
+          });
+        }
+      } catch (error) {
+        console.log("Ошибка воспроизведения звука:", error);
+      }
+    }
+
+    // Получаем параметр из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const imgUrl = urlParams.get('img') || 'https://i.pinimg.com/originals/d2/20/b6/d220b6a9c48fb4c048e2ed33d4f20873.png';
+
+    // Устанавливаем изображение
+    const mainImg = document.getElementById("mainImg");
+    mainImg.src = imgUrl;
+
+    mainImg.addEventListener("click", function(e) {
+      // Воспроизводим звук при клике
+      playSound(splitSound);
+      
+      const rect = mainImg.getBoundingClientRect();
+      const container = mainImg.closest('.container');
+      
+      // Точные размеры уменьшенной картинки
+      const displayWidth = 300;
+      const displayHeight = 200;
+      const halfHeight = 100;
+      
+      // Точные координаты центра картинки
+      const imgLeft = (window.innerWidth - displayWidth) / 2;
+      const imgTop = (window.innerHeight - displayHeight) / 2;
+      
+      // Скрываем оригинальное изображение
+      mainImg.style.pointerEvents = 'none';
+      mainImg.style.opacity = '0';
+      
+      // Создаем верхнюю половину
+      const topHalf = document.createElement('img');
+      topHalf.classList.add('half');
+      topHalf.src = imgUrl;
+      topHalf.style.width = displayWidth + 'px';
+      topHalf.style.height = displayHeight + 'px';
+      topHalf.style.objectFit = 'contain';
+      topHalf.style.objectPosition = 'center';
+      topHalf.style.clipPath = 'polygon(0 0, 100% 0, 100% 50%, 0 50%)';
+      topHalf.style.left = imgLeft + 'px';
+      topHalf.style.top = imgTop + 'px';
+      
+      // Создаем нижнюю половину
+      const bottomHalf = document.createElement('img');
+      bottomHalf.classList.add('half');
+      bottomHalf.src = imgUrl;
+      bottomHalf.style.width = displayWidth + 'px';
+      bottomHalf.style.height = displayHeight + 'px';
+      bottomHalf.style.objectFit = 'contain';
+      bottomHalf.style.objectPosition = 'center';
+      bottomHalf.style.clipPath = 'polygon(0 50%, 100% 50%, 100% 100%, 0 100%)';
+      bottomHalf.style.left = imgLeft + 'px';
+      bottomHalf.style.top = imgTop + 'px';
+      
+      container.appendChild(topHalf);
+      container.appendChild(bottomHalf);
+      
+      // Анимация разлета вверх и вниз
+      setTimeout(() => {
+        topHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
+        topHalf.style.transform = 'translateY(-100px)';
+        topHalf.style.opacity = '0';
+        
+        bottomHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
+        bottomHalf.style.transform = 'translateY(100px)';
+        bottomHalf.style.opacity = '0';
+      }, 10);
+      
+      // Удаляем элементы после анимации
+      setTimeout(() => {
+        topHalf.remove();
+        bottomHalf.remove();
+        mainImg.style.display = 'none';
+      }, 1100);
+    });
+  </script>
+</body>
+</html>
