@@ -46,11 +46,43 @@
   </style>
 </head>
 <body>
+  <!-- Звуковой элемент -->
+  <audio id="split-sound" preload="auto">
+    <source src="sounds/click.mp3" type="audio/mpeg">
+  </audio>
+
   <div class="container">
     <img src="" alt="" class="main-image" id="mainImg">
   </div>
 
   <script>
+    // Получаем звуковой элемент
+    const splitSound = document.getElementById('split-sound');
+
+    // Улучшенная функция для воспроизведения звука
+    function playSound(soundElement) {
+      if (!soundElement) {
+        console.log("Звуковой элемент не найден");
+        return;
+      }
+      
+      try {
+        if (soundElement.currentTime) {
+          soundElement.currentTime = 0;
+        }
+        
+        const playPromise = soundElement.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.log("Звук заблокирован браузером:", error);
+          });
+        }
+      } catch (error) {
+        console.log("Ошибка воспроизведения звука:", error);
+      }
+    }
+
     // Получаем параметр из URL
     const urlParams = new URLSearchParams(window.location.search);
     const imgUrl = urlParams.get('img') || 'https://i.pinimg.com/originals/d2/20/b6/d220b6a9c48fb4c048e2ed33d4f20873.png';
@@ -60,6 +92,9 @@
     mainImg.src = imgUrl;
 
     mainImg.addEventListener("click", function(e) {
+      // Воспроизводим звук при клике
+      playSound(splitSound);
+      
       const rect = mainImg.getBoundingClientRect();
       const container = mainImg.closest('.container');
       
