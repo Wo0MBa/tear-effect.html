@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Разрыв картинки</title>
+  <title>Разрыв без рамок</title>
   <style>
     body, html {
       margin: 0;
@@ -23,14 +23,19 @@
       align-items: center;
     }
 
-    .shatter-img {
+    /* Внешняя картинка — без рамок, без обрезания */
+    .target-img {
       width: 300px;
       height: 200px;
       object-fit: cover;
       cursor: pointer;
-      border-radius: 0;
+      /* Убрано всё! */
+      border: none;
+      outline: none;
+      box-shadow: none;
     }
 
+    /* Внутренняя картинка — под ней, изначально скрыта */
     .inner-img {
       position: absolute;
       top: 0;
@@ -47,25 +52,26 @@
       object-fit: cover;
     }
 
+    /* Кусочки — без рамок */
     .piece {
       position: absolute;
       pointer-events: none;
-      /* Переход сразу — чтобы сработал */
+      /* Переход сразу */
       transition: all 1s cubic-bezier(0.17, 0.67, 0.2, 1);
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Внешняя картинка -->
+    <!-- Внешняя картинка (разрушается) -->
     <img 
-      src="https://i.pinimg.com/736x/26/ac/05/26ac058e68e836fe258aedbabdd2073c.jpg" 
+      src="https://wallpapers.com/images/hd/cartoon-donkey-illustrationpng-n1ddqjninq5795hw.jpg" 
       alt="Рви меня" 
-      class="shatter-img" 
+      class="target-img" 
       id="targetImg"
     >
 
-    <!-- Внутренняя картинка -->
+    <!-- Внутренняя картинка (появляется после) -->
     <div class="inner-img" id="innerImg">
       <img src="https://i.pinimg.com/736x/3d/e6/07/3de60785f1307b00e2b7943a8007f969.jpg" alt="Секрет">
     </div>
@@ -78,25 +84,27 @@
       const container = img.closest('.container');
 
       img.addEventListener("click", function () {
-        // Сразу убираем внешнюю
+        // Убираем внешнюю картинку
         img.style.opacity = "0";
         setTimeout(() => { img.style.display = "none"; }, 300);
 
         // Показываем внутреннюю
-        setTimeout(() => { inner.style.opacity = "1"; }, 400);
+        setTimeout(() => {
+          inner.style.opacity = "1";
+        }, 400);
 
         // Параметры
-        const w = 300;  // фиксированная ширина
-        const h = 200;  // фиксированная высота
+        const width = 300;
+        const height = 200;
         const cols = 10;
         const rows = 10;
-        const pieceW = w / cols;
-        const pieceH = h / rows;
+        const pieceW = width / cols;
+        const pieceH = height / rows;
 
-        // Центр картинки
+        // Позиция картинки
         const rect = img.getBoundingClientRect();
-        const centerX = rect.left + w / 2;
-        const centerY = rect.top + h / 2;
+        const offsetX = rect.left;
+        const offsetY = rect.top;
 
         // Создаём кусочки
         for (let y = 0; y < rows; y++) {
@@ -106,30 +114,34 @@
 
             piece.style.width = pieceW + "px";
             piece.style.height = pieceH + "px";
+
+            // Часть изображения
             piece.style.backgroundImage = `url('${img.src}')`;
-            piece.style.backgroundSize = `${w}px ${h}px`;
+            piece.style.backgroundSize = `${width}px ${height}px`;
             piece.style.backgroundPosition = `-${x * pieceW}px -${y * pieceH}px`;
-            piece.style.left = (centerX - w/2 + x * pieceW) + "px";
-            piece.style.top = (centerY - h/2 + y * pieceH) + "px";
+
+            // Позиция — где была часть
+            piece.style.left = (offsetX + x * pieceW) + "px";
+            piece.style.top = (offsetY + y * pieceH) + "px";
 
             // Начальное состояние
             piece.style.opacity = "1";
-            piece.style.transform = "translate(0, 0) rotate(0deg) scale(1)";
+            piece.style.transform = "translate(0, 0)";
 
             container.appendChild(piece);
 
             // Случайное направление
             const angle = Math.random() * Math.PI * 2;
-            const speed = 50 + Math.random() * 100;
+            const speed = 40 + Math.random() * 80;
             const vx = Math.cos(angle) * speed;
             const vy = Math.sin(angle) * speed;
-            const rot = -20 + Math.random() * 40;
+            const rot = -15 + Math.random() * 30;
 
-            // Анимация (уже с transition)
-            requestAnimationFrame(() => {
-              piece.style.transform = `translate(${vx}px, ${vy}px) rotate(${rot}deg) scale(0.8)`;
+            // Анимация
+            setTimeout(() => {
+              piece.style.transform = `translate(${vx}px, ${vy}px) rotate(${rot}deg) scale(0.85)`;
               piece.style.opacity = "0";
-            });
+            }, 10);
 
             // Удаляем
             setTimeout(() => piece.remove(), 1000);
