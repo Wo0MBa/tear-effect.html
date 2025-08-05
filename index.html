@@ -11,7 +11,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: transparent;
+      background: #1a1f33;
       font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
@@ -29,25 +29,19 @@
       width: 300px;
       height: 200px;
       cursor: pointer;
-      object-fit: contain;
+      object-fit: cover;
       z-index: 20;
       position: absolute;
-      border: none;
-      outline: none;
-      box-shadow: none;
+      transition: transform 0.2s ease;
     }
     .main-image:hover {
       transform: scale(1.03);
-      transition: transform 0.2s ease;
     }
     .half {
       position: absolute;
+      object-fit: cover;
       pointer-events: none;
       z-index: 15;
-      border: none;
-      outline: none;
-      box-shadow: none;
-      object-fit: contain;
     }
     .half-top {
       width: 300px;
@@ -58,6 +52,7 @@
       width: 300px;
       height: 100px;
       clip-path: polygon(0 0, 300px 0, 300px 100px, 0 100px);
+      top: 100px;
     }
   </style>
 </head>
@@ -79,55 +74,43 @@
       const rect = mainImg.getBoundingClientRect();
       const container = mainImg.closest('.container');
       
-      // Создаем верхнюю половину (копию оригинала)
+      // Скрываем оригинальное изображение
+      mainImg.style.pointerEvents = 'none';
+      
+      // Создаем верхнюю половину
       const topHalf = document.createElement('img');
       topHalf.classList.add('half', 'half-top');
       topHalf.src = imgUrl;
       topHalf.style.left = rect.left + 'px';
       topHalf.style.top = rect.top + 'px';
+      topHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
       
-      // Создаем нижнюю половину (копию оригинала)
+      // Создаем нижнюю половину
       const bottomHalf = document.createElement('img');
       bottomHalf.classList.add('half', 'half-bottom');
       bottomHalf.src = imgUrl;
       bottomHalf.style.left = rect.left + 'px';
       bottomHalf.style.top = (rect.top + 100) + 'px';
+      bottomHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
       
       container.appendChild(topHalf);
       container.appendChild(bottomHalf);
       
-      // Скрываем оригинальное изображение
-      mainImg.style.pointerEvents = 'none';
-      mainImg.style.opacity = '0';
-      
-      // Анимация разлета вверх и вниз (эффект разрыва)
+      // Анимация разлета вверх и вниз
       setTimeout(() => {
-        topHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
-        topHalf.style.transform = 'translateY(-50px)';
-        topHalf.style.opacity = '1';
-        
-        bottomHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
-        bottomHalf.style.transform = 'translateY(50px)';
-        bottomHalf.style.opacity = '1';
-      }, 10);
-      
-      // Затем разлет в стороны
-      setTimeout(() => {
-        topHalf.style.transition = 'all 0.8s cubic-bezier(0.2, 0.8, 0.3, 1)';
-        topHalf.style.transform = 'translateY(-150px)';
+        topHalf.style.transform = 'translateY(-100px) rotate(-10deg)';
         topHalf.style.opacity = '0';
         
-        bottomHalf.style.transition = 'all 0.8s cubic-bezier(0.2, 0.8, 0.3, 1)';
-        bottomHalf.style.transform = 'translateY(150px)';
+        bottomHalf.style.transform = 'translateY(100px) rotate(10deg)';
         bottomHalf.style.opacity = '0';
-      }, 300);
+      }, 10);
       
       // Удаляем элементы после анимации
       setTimeout(() => {
         topHalf.remove();
         bottomHalf.remove();
         mainImg.style.display = 'none';
-      }, 1200);
+      }, 1000);
     });
   </script>
 </body>
