@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Разрыв без рамок</title>
+  <title>Shatter Reveal Effect</title>
   <style>
     body, html {
       margin: 0;
@@ -11,143 +11,131 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: transparent;
-    }
-
-    .container {
-      position: relative;
-      width: 100%;
-      height: 100%;
+      background: #1a1f33;
+      font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
     }
-
-    /* Внешняя картинка — без рамок, без обрезания */
-    .target-img {
-      width: 300px;
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .shatter-img {
+      width: 200px;
       height: 200px;
-      object-fit: cover;
       cursor: pointer;
-      /* Убрано всё! */
-      border: none;
-      outline: none;
-      box-shadow: none;
-    }
-
-    /* Внутренняя картинка — под ней, изначально скрыта */
-    .inner-img {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 300px;
-      height: 200px;
-      opacity: 0;
-      transition: opacity 0.6s ease-out;
-    }
-
-    .inner-img img {
-      width: 100%;
-      height: 100%;
+      border-radius: 12px;
       object-fit: cover;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      transition: transform 0.2s ease;
+      z-index: 20;
     }
-
-    /* Кусочки — без рамок */
+    .shatter-img:hover {
+      transform: scale(1.05);
+    }
     .piece {
       position: absolute;
+      border-radius: 3px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
       pointer-events: none;
-      /* Переход сразу */
-      transition: all 1s cubic-bezier(0.17, 0.67, 0.2, 1);
+      z-index: 15;
+    }
+    .revealed-image {
+      width: 200px;
+      height: 200px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.8s cubic-bezier(0.17, 0.67, 0.2, 1);
+      z-index: 10;
+    }
+    .revealed-image.show {
+      opacity: 1;
+      transform: translateY(0);
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Внешняя картинка (разрушается) -->
-    <img 
-      src="https://wallpapers.com/images/hd/cartoon-donkey-illustrationpng-n1ddqjninq5795hw.jpg" 
-      alt="Рви меня" 
-      class="target-img" 
-      id="targetImg"
-    >
-
-    <!-- Внутренняя картинка (появляется после) -->
-    <div class="inner-img" id="innerImg">
-      <img src="https://i.pinimg.com/736x/3d/e6/07/3de60785f1307b00e2b7943a8007f969.jpg" alt="Секрет">
-    </div>
+    <img src="" alt="" class="shatter-img" id="shatterImg">
+    <img src="" alt="" class="revealed-image" id="revealedImg">
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const img = document.getElementById("targetImg");
-      const inner = document.getElementById("innerImg");
-      const container = img.closest('.container');
+    // Получаем параметры из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const firstImgUrl = urlParams.get('firstImg') || 'https://wallpapers.com/images/hd/cartoon-donkey-illustrationpng-n1ddqjninq5795hw.jpg';
+    const secondImgUrl = urlParams.get('secondImg') || 'https://i.pinimg.com/736x/3d/e6/07/3de60785f1307b00e2b7943a8007f969.jpg';
 
-      img.addEventListener("click", function () {
-        // Убираем внешнюю картинку
-        img.style.opacity = "0";
-        setTimeout(() => { img.style.display = "none"; }, 300);
+    // Устанавливаем изображения
+    const shatterImg = document.getElementById("shatterImg");
+    const revealedImg = document.getElementById("revealedImg");
+    
+    shatterImg.src = firstImgUrl;
+    revealedImg.src = secondImgUrl;
 
-        // Показываем внутреннюю
-        setTimeout(() => {
-          inner.style.opacity = "1";
-        }, 400);
+    shatterImg.addEventListener("click", function(e) {
+      const rect = shatterImg.getBoundingClientRect();
+      const container = shatterImg.closest('.container');
 
-        // Параметры
-        const width = 300;
-        const height = 200;
-        const cols = 10;
-        const rows = 10;
-        const pieceW = width / cols;
-        const pieceH = height / rows;
+      // Параметры разрушения
+      const pieceW = 20;
+      const pieceH = 20;
+      const rows = Math.ceil(rect.height / pieceH);
+      const cols = Math.ceil(rect.width / pieceW);
 
-        // Позиция картинки
-        const rect = img.getBoundingClientRect();
-        const offsetX = rect.left;
-        const offsetY = rect.top;
+      // Создаем кусочки
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const piece = document.createElement('div');
+          piece.classList.add('piece');
+          piece.style.width = pieceW + 'px';
+          piece.style.height = pieceH + 'px';
+          piece.style.backgroundImage = 'url(\'' + shatterImg.src + '\')';
+          piece.style.backgroundSize = rect.width + 'px ' + rect.height + 'px';
+          piece.style.backgroundPosition = '-' + (col * pieceW) + 'px -' + (row * pieceH) + 'px';
+          piece.style.left = (rect.left + col * pieceW) + 'px';
+          piece.style.top = (rect.top + row * pieceH) + 'px';
 
-        // Создаём кусочки
-        for (let y = 0; y < rows; y++) {
-          for (let x = 0; x < cols; x++) {
-            const piece = document.createElement("div");
-            piece.classList.add("piece");
+          // Случайное движение
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 30 + Math.random() * 70;
+          const vx = Math.cos(angle) * speed;
+          const vy = Math.sin(angle) * speed;
+          const rotation = -30 + Math.random() * 60;
+          const scale = 0.7 + Math.random() * 0.5;
 
-            piece.style.width = pieceW + "px";
-            piece.style.height = pieceH + "px";
+          container.appendChild(piece);
 
-            // Часть изображения
-            piece.style.backgroundImage = `url('${img.src}')`;
-            piece.style.backgroundSize = `${width}px ${height}px`;
-            piece.style.backgroundPosition = `-${x * pieceW}px -${y * pieceH}px`;
+          // Анимация разлета
+          setTimeout(() => {
+            piece.style.transition = 'all 1.2s cubic-bezier(0.17, 0.67, 0.2, 1)';
+            piece.style.transform = `translate(${vx}px, ${vy}px) rotate(${rotation}deg) scale(${scale})`;
+            piece.style.opacity = '0';
+          }, 10);
 
-            // Позиция — где была часть
-            piece.style.left = (offsetX + x * pieceW) + "px";
-            piece.style.top = (offsetY + y * pieceH) + "px";
-
-            // Начальное состояние
-            piece.style.opacity = "1";
-            piece.style.transform = "translate(0, 0)";
-
-            container.appendChild(piece);
-
-            // Случайное направление
-            const angle = Math.random() * Math.PI * 2;
-            const speed = 40 + Math.random() * 80;
-            const vx = Math.cos(angle) * speed;
-            const vy = Math.sin(angle) * speed;
-            const rot = -15 + Math.random() * 30;
-
-            // Анимация
-            setTimeout(() => {
-              piece.style.transform = `translate(${vx}px, ${vy}px) rotate(${rot}deg) scale(0.85)`;
-              piece.style.opacity = "0";
-            }, 10);
-
-            // Удаляем
-            setTimeout(() => piece.remove(), 1000);
-          }
+          // Удаляем кусочки после анимации
+          setTimeout(() => piece.remove(), 1200);
         }
-      });
+      }
+
+      // Скрываем исходное изображение
+      shatterImg.style.transition = 'opacity 0.3s ease';
+      shatterImg.style.opacity = '0';
+      
+      setTimeout(() => {
+        shatterImg.style.display = 'none';
+        // Показываем второе изображение
+        revealedImg.classList.add('show');
+      }, 300);
     });
   </script>
 </body>
