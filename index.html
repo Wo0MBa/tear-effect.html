@@ -63,10 +63,10 @@
       const rect = mainImg.getBoundingClientRect();
       const container = mainImg.closest('.container');
       
-      // Получаем отображаемые размеры
-      const displayWidth = rect.width;
-      const displayHeight = rect.height;
-      const halfHeight = displayHeight / 2;
+      // Фиксированные размеры для уменьшенной картинки
+      const displayWidth = 300;
+      const displayHeight = 200;
+      const halfHeight = 100;
       
       // Скрываем оригинальное изображение
       mainImg.style.pointerEvents = 'none';
@@ -78,9 +78,9 @@
       topHalf.src = imgUrl;
       topHalf.style.width = displayWidth + 'px';
       topHalf.style.height = displayHeight + 'px';
-      topHalf.style.objectFit = 'none';
+      topHalf.style.objectFit = 'contain';
       topHalf.style.objectPosition = '0 0';
-      topHalf.style.clipPath = 'polygon(0 0, 100% 0, 100% ' + (50) + '%, 0 ' + (50) + '%)';
+      topHalf.style.clipPath = 'polygon(0 0, 100% 0, 100% 50%, 0 50%)';
       topHalf.style.left = rect.left + 'px';
       topHalf.style.top = rect.top + 'px';
       
@@ -90,9 +90,9 @@
       bottomHalf.src = imgUrl;
       bottomHalf.style.width = displayWidth + 'px';
       bottomHalf.style.height = displayHeight + 'px';
-      bottomHalf.style.objectFit = 'none';
+      bottomHalf.style.objectFit = 'contain';
       bottomHalf.style.objectPosition = '0 0';
-      bottomHalf.style.clipPath = 'polygon(0 ' + (50) + '%, 100% ' + (50) + '%, 100% 100%, 0 100%)';
+      bottomHalf.style.clipPath = 'polygon(0 50%, 100% 50%, 100% 100%, 0 100%)';
       bottomHalf.style.left = rect.left + 'px';
       bottomHalf.style.top = rect.top + 'px';
       
