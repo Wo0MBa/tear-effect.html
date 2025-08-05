@@ -11,7 +11,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: transparent;
+      background: #1a1f33;
       font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
@@ -26,16 +26,13 @@
       align-items: center;
     }
     .main-image {
-      max-width: 300px;
-      max-height: 200px;
-      width: auto;
-      height: auto;
+      width: 300px;
+      height: 200px;
       cursor: pointer;
+      object-fit: cover;
       z-index: 20;
       position: absolute;
       transition: transform 0.2s ease;
-      border: none;
-      outline: none;
     }
     .main-image:hover {
       transform: scale(1.03);
@@ -44,8 +41,20 @@
       position: absolute;
       pointer-events: none;
       z-index: 15;
-      border: none;
-      outline: none;
+    }
+    .half-top {
+      width: 300px;
+      height: 100px;
+      background-size: 300px 200px;
+      background-repeat: no-repeat;
+      background-position: 0 0;
+    }
+    .half-bottom {
+      width: 300px;
+      height: 100px;
+      background-size: 300px 200px;
+      background-repeat: no-repeat;
+      background-position: 0 -100px;
     }
   </style>
 </head>
@@ -57,7 +66,7 @@
   <script>
     // Получаем параметр из URL
     const urlParams = new URLSearchParams(window.location.search);
-    const imgUrl = urlParams.get('img') || 'https://i.pinimg.com/originals/d2/20/b6/d220b6a9c48fb4c048e2ed33d4f20873.png';
+    const imgUrl = urlParams.get('img') || 'https://i.pinimg.com/originals/d2/20/b6/d220b6a9c48fb4c048e2ed33d4f20873.png  ';
 
     // Устанавливаем изображение
     const mainImg = document.getElementById("mainImg");
@@ -67,69 +76,47 @@
       const rect = mainImg.getBoundingClientRect();
       const container = mainImg.closest('.container');
       
-      // Получаем реальные размеры изображения
-      const img = new Image();
-      img.src = imgUrl;
+      // Скрываем оригинальное изображение
+      mainImg.style.pointerEvents = 'none';
+      mainImg.style.opacity = '0';
       
-      img.onload = function() {
-        const naturalWidth = img.width;
-        const naturalHeight = img.height;
+      // Создаем верхнюю половину
+      const topHalf = document.createElement('div');
+      topHalf.classList.add('half', 'half-top');
+      topHalf.style.backgroundImage = 'url("' + imgUrl + '")';
+      topHalf.style.left = rect.left + 'px';
+      topHalf.style.top = rect.top + 'px';
+      
+      // Создаем нижнюю половину
+      const bottomHalf = document.createElement('div');
+      bottomHalf.classList.add('half', 'half-bottom');
+      bottomHalf.style.backgroundImage = 'url("' + imgUrl + '")';
+      bottomHalf.style.left = rect.left + 'px';
+      bottomHalf.style.top = (rect.top + 100) + 'px';
+      
+      container.appendChild(topHalf);
+      container.appendChild(bottomHalf);
+      
+      // Анимация разлета вверх и вниз
+      setTimeout(() => {
+        topHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
+        topHalf.style.transform = 'translateY(-150px)';
+        topHalf.style.opacity = '0';
         
-        // Вычисляем отображаемые размеры
-        const displayWidth = rect.width;
-        const displayHeight = rect.height;
-        const halfHeight = displayHeight / 2;
-        
-        // Скрываем оригинальное изображение
-        mainImg.style.pointerEvents = 'none';
-        mainImg.style.opacity = '0';
-        
-        // Создаем верхнюю половину
-        const topHalf = document.createElement('img');
-        topHalf.classList.add('half');
-        topHalf.src = imgUrl;
-        topHalf.style.width = displayWidth + 'px';
-        topHalf.style.height = halfHeight + 'px';
-        topHalf.style.objectFit = 'none';
-        topHalf.style.objectPosition = '0 0';
-        topHalf.style.clipPath = 'polygon(0 0, 100% 0, 100% 100%, 0 100%)';
-        topHalf.style.left = rect.left + 'px';
-        topHalf.style.top = rect.top + 'px';
-        
-        // Создаем нижнюю половину
-        const bottomHalf = document.createElement('img');
-        bottomHalf.classList.add('half');
-        bottomHalf.src = imgUrl;
-        bottomHalf.style.width = displayWidth + 'px';
-        bottomHalf.style.height = halfHeight + 'px';
-        bottomHalf.style.objectFit = 'none';
-        bottomHalf.style.objectPosition = '0 -' + halfHeight + 'px';
-        bottomHalf.style.clipPath = 'polygon(0 0, 100% 0, 100% 100%, 0 100%)';
-        bottomHalf.style.left = rect.left + 'px';
-        bottomHalf.style.top = (rect.top + halfHeight) + 'px';
-        
-        container.appendChild(topHalf);
-        container.appendChild(bottomHalf);
-        
-        // Анимация разлета вверх и вниз
-        setTimeout(() => {
-          topHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
-          topHalf.style.transform = 'translateY(-100px)';
-          topHalf.style.opacity = '0';
-          
-          bottomHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
-          bottomHalf.style.transform = 'translateY(100px)';
-          bottomHalf.style.opacity = '0';
-        }, 10);
-        
-        // Удаляем элементы после анимации
-        setTimeout(() => {
-          topHalf.remove();
-          bottomHalf.remove();
-          mainImg.style.display = 'none';
-        }, 1100);
-      };
+        bottomHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
+        bottomHalf.style.transform = 'translateY(150px)';
+        bottomHalf.style.opacity = '0';
+      }, 10);
+      
+      // Удаляем элементы после анимации
+      setTimeout(() => {
+        topHalf.remove();
+        bottomHalf.remove();
+        mainImg.style.display = 'none';
+      }, 1100);
     });
   </script>
 </body>
 </html>
+
+
